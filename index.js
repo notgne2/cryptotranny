@@ -33,12 +33,21 @@ class NetConn extends EventEmitter {
       // Emit recieved data
       this.emit ('data', data);
     });
+
+    this._socket.on ('close', () => {
+      this.emit ('disconnected');
+    });
   }
 
   // Send data over socket
   send (data) {
     // Write data to the encoding stream
     this._socketEncoder.write (data);
+  }
+
+  // Destroy underlying sock connection
+  destroy () {
+    this._socket.destroy ();
   }
 }
 
@@ -48,7 +57,10 @@ class CryptoComm extends EventEmitter {
     // Induce parent class
     super ();
 
-    // Private variables
+    // Public properties
+    this.pk = theirPk;
+
+    // Private properties
     this._netConn = netConn;
 
     this._theirPk = theirPk;
@@ -62,6 +74,10 @@ class CryptoComm extends EventEmitter {
   _listen () {
     this._netConn.on ('data', (data) => {
       this._onData (data);
+    });
+
+    this._netConn.on ('disconnected', () => {
+      this.emit ('disconnected');
     });
   }
 
@@ -101,6 +117,11 @@ class CryptoComm extends EventEmitter {
 
     // Send encoded data over conn
     this._netConn.send (encodedData);
+  }
+
+  // Destroy underlying netconn
+  destroy () {
+    this._netConn.destroy ();
   }
 }
 
@@ -148,8 +169,10 @@ class TrannyClient extends CryptoComm {
 
 // Generate a keypair
 function genKeyPair () {
+  // Generate keys using nacl
   let naclKeyPair = nacl.box.keyPair ();
 
+  // Return in cryptotranny formatting
   return {
     pk : Buffer.from (naclKeyPair.publicKey),
     sk : Buffer.from (naclKeyPair.secretKey),
