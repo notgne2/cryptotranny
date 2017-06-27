@@ -138,7 +138,7 @@ class TrannyClient extends CryptoComm {
     netConn.send (keyPair.pk);
 
     // Induce parent with the conn and key data
-    super (netConn, theirPk, keypair.sk);
+    super (netConn, theirPk, keyPair.sk);
   }
 }
 
