@@ -102,7 +102,7 @@ class CryptoComm extends EventEmitter {
 
 // TrannyServer class which emits new `CryptoComm` clients
 class TrannyServer extends EventEmitter {
-  constructor (ourSk, port) {
+  constructor (keyPair, port) {
     // Induce parent class
     super ();
 
@@ -114,7 +114,7 @@ class TrannyServer extends EventEmitter {
       // Listen for first data on conn
       netConn.once ('data', (data) => {
         // First data is always public key, use to create a `CryptoComm`
-        let comm = new CryptoComm (netConn, data, ourSk);
+        let comm = new CryptoComm (netConn, data, keyPair.sk);
         // Emit new comm on self
         this.emit ('client', comm);
       });
@@ -127,7 +127,7 @@ class TrannyServer extends EventEmitter {
 
 // TrannyClient which implements `CryptoComm` taking a few connection options
 class TrannyClient extends CryptoComm {
-  constructor (host, port, ourPk, ourSk, theirPk) {
+  constructor (host, port, keyPair, theirPk) {
     // Create new net socket connection to target host
     let socket = net.createConnection ({ host: host, port: port });
 
@@ -135,12 +135,22 @@ class TrannyClient extends CryptoComm {
     let netConn = new NetConn (socket);
 
     // Send our public key over socket
-    netConn.send (ourPk);
+    netConn.send (keyPair.pk);
 
     // Induce parent with the conn and key data
-    super (netConn, theirPk, ourSk);
+    super (netConn, theirPk, keypair.sk);
   }
 }
 
+// Generate a keypair
+function genKeyPair () {
+  let naclKeyPair = nacl.box.keyPair ();
+
+  return {
+    pk : Buffer.from (naclKeyPair.publicKey),
+    sk : Buffer.from (naclKeyPair.secretKey),
+  };
+}
+
 // Exports
-exports = module.exports = { TrannyServer, TrannyClient };
+exports = module.exports = { TrannyServer, TrannyClient, genKeyPair };
