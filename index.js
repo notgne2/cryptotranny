@@ -78,10 +78,10 @@ class CryptoComm extends EventEmitter {
     let decryptedData = nacl.box.open (encryptedData, nonce, this._theirPk, this._ourSk);
 
     // Emit data over self
-    this.emit ('data', decryptedData);
+    this.emit ('message', decryptedData);
   }
 
-  // Send data over comm
+  // Send message over comm
   send (data) {
     // Generate a random nonce
     let nonce = nacl.randomBytes (nacl.box.nonceLength);
