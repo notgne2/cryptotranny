@@ -1,0 +1,25 @@
+{
+  "name": "cryptotranny",
+  "version": "1.0.1",
+  "description": "Simple Cryptographic Transport",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "crypto",
+    "encrypted",
+    "encryption",
+    "tcp",
+    "net",
+    "transport",
+    "events",
+    "network"
+  ],
+  "author": "installgen2",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "length-prefixed-stream": "^1.5.1",
+    "tweetnacl": "^1.0.0"
+  }
+}
