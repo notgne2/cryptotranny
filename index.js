@@ -77,8 +77,12 @@ class CryptoComm extends EventEmitter {
     // Decrypt contained data
     let decryptedData = nacl.box.open (encryptedData, nonce, this._theirPk, this._ourSk);
 
+    if (decryptedData == null) {
+      return // Unable to decrypt, probably somebody trying to intercept
+    }
+
     // Emit data over self
-    this.emit ('message', decryptedData);
+    this.emit ('message', Buffer.from(decryptedData));
   }
 
   // Send message over comm
